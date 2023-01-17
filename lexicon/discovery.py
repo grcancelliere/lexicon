@@ -5,6 +5,7 @@ This module takes care of finding information about the runtime of Lexicon:
 """
 import pkgutil
 import re
+import logging
 from typing import Dict
 
 try:
@@ -14,6 +15,7 @@ except ModuleNotFoundError:
 
 from lexicon import providers
 
+LOGGER = logging.getLogger(__name__)
 
 def find_providers() -> Dict[str, bool]:
     """Find all providers registered in Lexicon, and their availability"""
@@ -62,7 +64,8 @@ def _resolve_requirements(provider: str, distribution: Distribution) -> bool:
     for requirement in requirements:
         try:
             Distribution.from_name(requirement)
-        except PackageNotFoundError:
+        except PackageNotFoundError as e:
+            LOGGER.debug("%s: %s", requirement, e)
             # At least one extra requirement is not fulfilled
             return False
 
